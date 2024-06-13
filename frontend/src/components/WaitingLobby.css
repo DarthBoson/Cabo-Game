@@ -1,0 +1,49 @@
+/* WaitingLobby.css */
+
+.waiting-lobby {
+  text-align: center;
+  margin: 20px;
+}
+
+.player-list {
+  margin: 20px 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.player-name {
+  display: flex;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.player-name:last-child {
+  border-bottom: none;
+}
+
+.player-name img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #45a049;
+}

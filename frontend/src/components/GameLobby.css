@@ -125,7 +125,7 @@
 
 .player-hand {
   display: grid;
-  grid-template-columns: repeat(2, 50px);
+  grid-template-columns: repeat(2, 100px);
   grid-gap: 10px;
 }
 
@@ -182,4 +182,8 @@
 
 .popup-content button:hover {
   background-color: #45a049;
+}
+
+.card.selectable {
+  border: 2px dashed #4CAF50; /* Dashed border to indicate the card is selectable */
 }

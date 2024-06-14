@@ -7,10 +7,29 @@ const socket = io('http://localhost:4000');
 function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
   const [showPopup, setShowPopup] = useState(false);
   const [topCard, setTopCard] = useState(null);
+  const [allowCardSelection, setAllowCardSelection] = useState(false);
+  const [showCardValuePopup, setShowCardValuePopup] = useState(false);
+  const [selectedCardValue, setSelectedCardValue] = useState(null);
+  const [currentPlayer, setCurrentPlayer] = useState(null);
 
   useEffect(() => {
     setTopCard(card1Pile[card1Pile.length - 1]);
   }, [card1Pile]);
+
+  useEffect(() => {
+    setCurrentPlayer(players[currentTurn]);
+  }, [currentTurn, players]);
+
+  useEffect(() => {
+    socket.on('allowCardSelection', ({ topCard }) => {
+      setTopCard(topCard);
+      setAllowCardSelection(true);
+    });
+
+    return () => {
+      socket.off('allowCardSelection');
+    };
+  }, []);
 
   const handleCardClick = () => {
     if (card1Pile.length > 0) {
@@ -20,7 +39,12 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
   };
 
   const handleUsePower = () => {
-    socket.emit('usePower');
+    const cardValue = topCard.slice(0, -1);
+    if (['7', '8', '9', '10'].includes(cardValue)) {
+      socket.emit('usePower');
+    } else {
+      socket.emit('usePower');
+    }
     setShowPopup(false);
   };
 
@@ -28,17 +52,33 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
     setShowPopup(false);
   };
 
+  const handleCardSelection = (cardValue, cardIndex, playerIndex) => {
+    if (allowCardSelection) {
+      setSelectedCardValue(cardValue);
+      setShowCardValuePopup(true);
+      setAllowCardSelection(false);
+      socket.emit('selectCard');
+    }
+  };
+
+  const closeCardValuePopup = () => {
+    setShowCardValuePopup(false);
+  };
+
   const renderPlayerSection = (player, index, position) => {
-    const cardIndexStart = index * 4;
-    const playerCards = card1Pile.slice(cardIndexStart, cardIndexStart + 4);
     const isCurrentTurn = currentTurn === index;
 
     return (
       <div key={index} className={`player-section ${position}`}>
         {position === 'bottom' && (
           <div className="player-hand">
-            {playerCards.map((card) => (
-              <div key={card} className="card">
+            {player.cards.map((card, cardIndex) => (
+              <div
+                key={cardIndex}
+                className={`card ${allowCardSelection ? 'selectable' : ''}`}
+                onClick={() => allowCardSelection && handleCardSelection(card, cardIndex, index)}
+                style={{ cursor: allowCardSelection ? 'pointer' : 'default' }}
+              >
                 {card}
               </div>
             ))}
@@ -50,8 +90,13 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
         </div>
         {position === 'top' && (
           <div className="player-hand">
-            {playerCards.map((card) => (
-              <div key={card} className="card">
+            {player.cards.map((card, cardIndex) => (
+              <div
+                key={cardIndex}
+                className={`card ${allowCardSelection ? 'selectable' : ''}`}
+                onClick={() => allowCardSelection && handleCardSelection(card, cardIndex, index)}
+                style={{ cursor: allowCardSelection ? 'pointer' : 'default' }}
+              >
                 {card}
               </div>
             ))}
@@ -96,6 +141,14 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
             <h3>Top Card: {topCard}</h3>
             <button onClick={handleUsePower}>Use Power</button>
             <button onClick={handleReplaceCard}>Replace Card</button>
+          </div>
+        </div>
+      )}
+      {showCardValuePopup && (
+        <div className="popup">
+          <div className="popup-content">
+            <h3>Selected Card Value: {selectedCardValue}</h3>
+            <button onClick={closeCardValuePopup}>Close</button>
           </div>
         </div>
       )}

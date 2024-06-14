@@ -18,6 +18,7 @@ let players = []; // Initialize players array
 let card1Pile = []; // Initialize card1Pile
 let card2Pile = []; // Initialize card2Pile
 let currentTurn = 0; // Initialize current turn
+let topCard = null; // Initialize topCard
 
 // Helper function to shuffle an array
 function shuffleDeck(array) {
@@ -53,6 +54,14 @@ function startNewGame() {
   card1Pile = shuffleDeck(doubleDeck);
   card2Pile = [];
   currentTurn = 0; // Reset current turn
+
+  // Deal 4 cards to each player
+  players.forEach(player => {
+    player.cards = [];
+    for (let i = 0; i < 4; i++) {
+      player.cards.push(card1Pile.pop());
+    }
+  });
 }
 
 // Enable CORS for all routes
@@ -79,13 +88,22 @@ io.on('connection', (socket) => {
   // Handle usePower event to move cards between card1Pile and card2Pile
   socket.on('usePower', () => {
     if (card1Pile.length > 0) {
-      const topCard = card1Pile.pop(); // Remove top card from card1Pile
-      card2Pile.push(topCard); // Add it to card2Pile
-      if (card1Pile.length === 0) {
-        // If card1Pile is empty, shuffle card2Pile back into card1Pile
-        card1Pile = shuffleDeck(card2Pile);
-        card2Pile = []; // Clear card2Pile
+      topCard = card1Pile.pop(); // Remove top card from card1Pile
+      const cardValue = topCard.slice(0, -1);
+      if (['7', '8', '9', '10'].includes(cardValue)) {
+        socket.emit('allowCardSelection', { topCard });
+      } else {
+        card2Pile.push(topCard); // Add it to card2Pile
+        io.emit('gameUpdate', { players, card1Pile, card2Pile, currentTurn }); // Send updated state to all clients
       }
+    }
+  });
+
+  // Handle card selection event
+  socket.on('selectCard', () => {
+    if (topCard) {
+      card2Pile.push(topCard); // Add top card from card1Pile to card2Pile
+      topCard = null; // Reset topCard
       io.emit('gameUpdate', { players, card1Pile, card2Pile, currentTurn }); // Send updated state to all clients
     }
   });

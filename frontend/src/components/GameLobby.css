@@ -108,7 +108,7 @@
 }
 
 .player-card.current-turn {
-  border: 10px solid green; /* Green border for the current player's turn */
+  border: 2px solid green; /* Green border for the current player's turn */
 }
 
 .player-card img {

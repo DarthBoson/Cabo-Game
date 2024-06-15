@@ -8,6 +8,9 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
   const [showPopup, setShowPopup] = useState(false);
   const [topCard, setTopCard] = useState(null);
   const [allowCardSelection, setAllowCardSelection] = useState(false);
+  const [allowCardSwap, setAllowCardSwap] = useState(false);
+  const [allowCardReplacement, setAllowCardReplacement] = useState(false);
+  const [selectedCards, setSelectedCards] = useState([]);
   const [showCardValuePopup, setShowCardValuePopup] = useState(false);
   const [selectedCardValue, setSelectedCardValue] = useState(null);
   const [currentPlayer, setCurrentPlayer] = useState(null);
@@ -26,8 +29,14 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
       setAllowCardSelection(true);
     });
 
+    socket.on('allowCardSwap', ({ topCard }) => {
+      setTopCard(topCard);
+      setAllowCardSwap(true);
+    });
+
     return () => {
       socket.off('allowCardSelection');
+      socket.off('allowCardSwap');
     };
   }, []);
 
@@ -42,6 +51,8 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
     const cardValue = topCard.slice(0, -1);
     if (['7', '8', '9', '10'].includes(cardValue)) {
       socket.emit('usePower');
+    } else if (['J', 'Q'].includes(cardValue)) {
+      socket.emit('usePower');
     } else {
       socket.emit('usePower');
     }
@@ -49,6 +60,7 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
   };
 
   const handleReplaceCard = () => {
+    setAllowCardReplacement(true);
     setShowPopup(false);
   };
 
@@ -58,6 +70,19 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
       setShowCardValuePopup(true);
       setAllowCardSelection(false);
       socket.emit('selectCard');
+    } else if (allowCardSwap) {
+      const selectedCard = { playerIndex, cardIndex };
+      const newSelectedCards = [...selectedCards, selectedCard];
+      setSelectedCards(newSelectedCards);
+
+      if (newSelectedCards.length === 2) {
+        socket.emit('swapCards', newSelectedCards[0], newSelectedCards[1]);
+        setSelectedCards([]);
+        setAllowCardSwap(false);
+      }
+    } else if (allowCardReplacement && playerIndex === currentTurn) {
+      socket.emit('replaceCard', playerIndex, cardIndex);
+      setAllowCardReplacement(false);
     }
   };
 
@@ -75,9 +100,9 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
             {player.cards.map((card, cardIndex) => (
               <div
                 key={cardIndex}
-                className={`card ${allowCardSelection ? 'selectable' : ''}`}
-                onClick={() => allowCardSelection && handleCardSelection(card, cardIndex, index)}
-                style={{ cursor: allowCardSelection ? 'pointer' : 'default' }}
+                className={`card ${allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) ? 'selectable' : ''}`}
+                onClick={() => (allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn)) && handleCardSelection(card, cardIndex, index)}
+                style={{ cursor: allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) ? 'pointer' : 'default' }}
               >
                 {card}
               </div>
@@ -93,9 +118,9 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
             {player.cards.map((card, cardIndex) => (
               <div
                 key={cardIndex}
-                className={`card ${allowCardSelection ? 'selectable' : ''}`}
-                onClick={() => allowCardSelection && handleCardSelection(card, cardIndex, index)}
-                style={{ cursor: allowCardSelection ? 'pointer' : 'default' }}
+                className={`card ${allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) ? 'selectable' : ''}`}
+                onClick={() => (allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn)) && handleCardSelection(card, cardIndex, index)}
+                style={{ cursor: allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) ? 'pointer' : 'default' }}
               >
                 {card}
               </div>

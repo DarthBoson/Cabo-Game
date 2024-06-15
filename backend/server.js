@@ -92,6 +92,8 @@ io.on('connection', (socket) => {
       const cardValue = topCard.slice(0, -1);
       if (['7', '8', '9', '10'].includes(cardValue)) {
         socket.emit('allowCardSelection', { topCard });
+      } else if (['J', 'Q'].includes(cardValue)) {
+        socket.emit('allowCardSwap', { topCard });
       } else {
         card2Pile.push(topCard); // Add it to card2Pile
         io.emit('gameUpdate', { players, card1Pile, card2Pile, currentTurn }); // Send updated state to all clients
@@ -99,8 +101,32 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Handle replaceCard event
+  socket.on('replaceCard', (playerIndex, cardIndex) => {
+    if (topCard) {
+      const player = players[playerIndex];
+      const replacedCard = player.cards.splice(cardIndex, 1, topCard)[0];
+      card2Pile.push(replacedCard); // Add replaced card to card2Pile
+      topCard = null; // Reset topCard
+      io.emit('gameUpdate', { players, card1Pile, card2Pile, currentTurn }); // Send updated state to all clients
+    }
+  });
+
   // Handle card selection event
   socket.on('selectCard', () => {
+    if (topCard) {
+      card2Pile.push(topCard); // Add top card from card1Pile to card2Pile
+      topCard = null; // Reset topCard
+      io.emit('gameUpdate', { players, card1Pile, card2Pile, currentTurn }); // Send updated state to all clients
+    }
+  });
+
+  // Handle card swap event
+  socket.on('swapCards', (firstCardIndex, secondCardIndex) => {
+    const temp = players[firstCardIndex.playerIndex].cards[firstCardIndex.cardIndex];
+    players[firstCardIndex.playerIndex].cards[firstCardIndex.cardIndex] = players[secondCardIndex.playerIndex].cards[secondCardIndex.cardIndex];
+    players[secondCardIndex.playerIndex].cards[secondCardIndex.cardIndex] = temp;
+
     if (topCard) {
       card2Pile.push(topCard); // Add top card from card1Pile to card2Pile
       topCard = null; // Reset topCard

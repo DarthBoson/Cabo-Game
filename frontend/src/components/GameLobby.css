@@ -4,11 +4,11 @@
   text-align: center;
   margin: 0;
   padding: 0;
-  width: 100vw; /* Set the width to cover the entire viewport */
-  height: 100vh; /* Set the height to cover the entire viewport */
-  background-image: url('assets/poker-table.jpg'); /* Replace 'path/to/your/image.jpg' with the path to your custom image */
-  background-size: cover; /* Cover the entire element with the background image */
-  background-position: center; /* Center the background image */
+  width: 100vw;
+  height: 100vh;
+  background-image: url('assets/poker-table.jpg');
+  background-size: cover;
+  background-position: center;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -48,6 +48,12 @@
   cursor: pointer;
 }
 
+.sidebar-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+}
+
 .sidebar-card:hover {
   background-color: #f0f0f0;
 }
@@ -71,10 +77,11 @@
 
 .game-board {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
   flex-grow: 1;
+  padding: 20px;
 }
 
 .row {
@@ -108,7 +115,7 @@
 }
 
 .player-card.current-turn {
-  border: 2px solid green; /* Green border for the current player's turn */
+  border: 2px solid green;
 }
 
 .player-card img {
@@ -185,5 +192,5 @@
 }
 
 .card.selectable {
-  border: 2px dashed #4CAF50; /* Dashed border to indicate the card is selectable */
+  border: 2px dashed #4CAF50;
 }

@@ -1,0 +1,35 @@
+.game-results {
+  text-align: center;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.player-result {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.player-result img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.player-cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.player-cards .card {
+  margin: 5px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}

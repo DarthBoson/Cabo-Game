@@ -18,6 +18,7 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
   const [showCaboPopup, setShowCaboPopup] = useState(false);
   const [caboCalled, setCaboCalled] = useState(false);
   const [extraTurnsLeft, setExtraTurnsLeft] = useState(0);
+  const [swapFromPile2, setSwapFromPile2] = useState(false);
 
   const navigate = useNavigate();
 
@@ -39,7 +40,12 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
       setTopCard(topCard);
       setAllowCardSwap(true);
     });
-
+	
+	socket.on('allowCardSwapFromPile2', ({ topCard }) => {
+      setTopCard(topCard);
+      setSwapFromPile2(true);
+	});
+	
     socket.on('gameEnded', (players) => {
       navigate('/results', { state: { players } });
     });
@@ -47,6 +53,7 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
     return () => {
       socket.off('allowCardSelection');
       socket.off('allowCardSwap');
+      socket.off('allowCardSwapFromPile2');
       socket.off('gameEnded');
     };
   }, [navigate]);
@@ -94,11 +101,20 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
     } else if (allowCardReplacement && playerIndex === currentTurn) {
       socket.emit('replaceCard', playerIndex, cardIndex);
       setAllowCardReplacement(false);
+    } else if (swapFromPile2 && playerIndex === currentTurn) {
+      socket.emit('replaceCardFromPile2', currentTurn, cardIndex);
+      setSwapFromPile2(false);
     }
   };
 
   const closeCardValuePopup = () => {
     setShowCardValuePopup(false);
+  };
+
+  const handleSwapFromPile2 = () => {
+    if (card2Pile.length > 0) {
+      socket.emit('useCardFromPile2');
+	}
   };
 
   const swapCardFromPile2 = (playerIndex, cardIndex) => {
@@ -114,7 +130,7 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
     setExtraTurnsLeft(players.length - 1);
     setTimeout(() => {
       setShowCaboPopup(false);
-    }, 10000);
+    }, 5000);
   };
 
   const handleNextTurn = () => {
@@ -140,9 +156,9 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
             {player.cards.map((card, cardIndex) => (
               <div
                 key={cardIndex}
-                className={`card ${allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) ? 'selectable' : ''}`}
-                onClick={() => (allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn)) && handleCardSelection(card, cardIndex, index)}
-                style={{ cursor: allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) ? 'pointer' : 'default' }}
+                className={`card ${allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn) ? 'selectable' : ''}`}
+                onClick={() => (allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn)) || (swapFromPile2 && index === currentTurn) && handleCardSelection(card, cardIndex, index)}
+                style={{ cursor: allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn) ? 'pointer' : 'default' }}
               >
                 {card}
               </div>
@@ -158,9 +174,9 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
             {player.cards.map((card, cardIndex) => (
               <div
                 key={cardIndex}
-                className={`card ${allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) ? 'selectable' : ''}`}
-                onClick={() => (allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn)) && handleCardSelection(card, cardIndex, index)}
-                style={{ cursor: allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) ? 'pointer' : 'default' }}
+                className={`card ${allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn) ? 'selectable' : ''}`}
+                onClick={() => (allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn)) || (swapFromPile2 && index === currentTurn) && handleCardSelection(card, cardIndex, index)}
+                style={{ cursor: allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn) ? 'pointer' : 'default' }}
               >
                 {card}
               </div>
@@ -180,14 +196,14 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
             <div className="sidebar-card" onClick={handleCardClick}>
               Remaining: {card1Pile.length} cards
             </div>
-            <div className="sidebar-card" onClick={() => swapCardFromPile2(currentTurn, 0)}>
+            <div className="sidebar-card" onClick={handleSwapFromPile2}>
               {card2Pile.length > 0 ? `Card 2: ${card2Pile[card2Pile.length - 1]}` : 'Card 2'}
             </div>
           </div>
           <div className="sidebar-buttons">
             <button>Button 1</button>
             <button onClick={callCabo}>Call Cabo</button>
-            <button onClick={() => swapCardFromPile2(currentTurn, 1)}>Swap Card from Pile 2</button>
+            <button onClick={handleSwapFromPile2}>Swap Card from Pile 2</button>
             <button onClick={handleNextTurn}>Next Turn</button>
           </div>
         </div>

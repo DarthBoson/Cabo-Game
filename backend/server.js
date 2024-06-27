@@ -19,6 +19,7 @@ let card1Pile = []; // Initialize card1Pile
 let card2Pile = []; // Initialize card2Pile
 let currentTurn = 0; // Initialize current turn
 let topCard = null; // Initialize topCard
+let count = -1;
 
 // Helper function to shuffle an array
 function shuffleDeck(array) {
@@ -113,13 +114,15 @@ io.on('connection', (socket) => {
     // Broadcast the updated game state to all clients
     io.emit('gameUpdate', { players, card1Pile, card2Pile, currentTurn });
   });
-   
+  
+  //Handle Caed selection from discard pile  
   socket.on('useCardFromPile2', () => {
     if (card2Pile.length > 0) {
       socket.emit('allowCardSwapFromPile2', { topCard });
     }
   });
-
+  
+  // Handle Card Swap from discard pile
   socket.on('replaceCardFromPile2', (playerIndex, cardIndex) => {
     const player = players[playerIndex];
     if (player && player.cards && player.cards.length > cardIndex) {
@@ -135,6 +138,35 @@ io.on('connection', (socket) => {
     }
   });
   
+  // Handle Cabo calls  
+	socket.on('callCabo', (callingPlayerIndex) => {
+	  //io.emit('caboCalled');
+	  
+	  console.log("At the very fucking least i am here");
+	  console.log(players);
+	  
+	  if (count > 0){
+		  io.emit('gameEnded', { players }); // Send player data when the game ends
+	  }
+	  
+	  count = count + 100;
+	  
+	  let turnsRemaining = players.length - 1;
+	  let turnIndex = (callingPlayerIndex + 1) % players.length;
+
+	  function nextTurn() {
+		  console.log("Am here");
+		if (turnsRemaining > 0) {
+		  currentTurn = turnIndex;
+		  io.emit('gameUpdate', { players, card1Pile, card2Pile, currentTurn });
+		  turnsRemaining--;
+		  turnIndex = (turnIndex + 1) % players.length;
+		} else {
+			console.log("Am finally here");
+		  io.emit('gameEnded', { players }); // Send player data when the game ends
+		}
+	  }
+	});
 
   // Handle card selection event
   socket.on('selectCard', () => {

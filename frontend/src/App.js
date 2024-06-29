@@ -6,7 +6,7 @@ import WaitingLobby from './components/WaitingLobby';
 import GameLobby from './components/GameLobby';
 import GameResults from './components/GameResults';
 
-const socket = io('http://localhost:4000');
+const socket = io('https://cabo-game-backend.onrender.com');
 
 function App() {
   const [username, setUsername] = useState('');

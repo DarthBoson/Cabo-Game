@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000", // Allow only this origin to access the server
+    origin: "https://cabo-game-frontend.onrender.com", // Allow only this origin to access the server
     methods: ["GET", "POST"]
   }
 });

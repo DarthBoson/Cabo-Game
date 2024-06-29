@@ -14,6 +14,8 @@ function LoginPage({ onLogin }) {
   return (
     <div className="login-container">
       <div className="login-box">
+	    <h1>Cabo Card Game</h1>
+		<p>Cabo is a fast-paced card game that combines memory, strategy, and a bit of luck. Designed for arbitrary number of players, the objective is to have the lowest score by the end of the game. Easy to learn yet challenging to master, Cabo is perfect for family game nights and friendly gatherings, or to make and break friendships.</p>
         <h2>Login</h2>
         <input
           type="text"

@@ -157,7 +157,7 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
               <div
                 key={cardIndex}
                 className={`card ${allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn) ? 'selectable' : ''}`}
-                onClick={() => (allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn)) || (swapFromPile2 && index === currentTurn) && handleCardSelection(card, cardIndex, index)}
+                onClick={() => (allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn)) && handleCardSelection(card, cardIndex, index)}
                 style={{ cursor: allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn) ? 'pointer' : 'default' }}
               >
                 {card}
@@ -175,10 +175,10 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
               <div
                 key={cardIndex}
                 className={`card ${allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn) ? 'selectable' : ''}`}
-                onClick={() => (allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn)) || (swapFromPile2 && index === currentTurn) && handleCardSelection(card, cardIndex, index)}
+                onClick={() => (allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn)) && handleCardSelection(card, cardIndex, index)}
                 style={{ cursor: allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn) ? 'pointer' : 'default' }}
               >
-                {card}
+                
               </div>
             ))}
           </div>
@@ -189,7 +189,7 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
 
   return (
     <div className="game-lobby">
-      <h2>Game Lobby</h2>
+      
       <div className="game-content">
         <div className="sidebar">
           <div className="sidebar-cards">
@@ -201,10 +201,8 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
             </div>
           </div>
           <div className="sidebar-buttons">
-            <button>Button 1</button>
             <button onClick={callCabo}>Call Cabo</button>
-            <button onClick={handleSwapFromPile2}>Swap Card from Pile 2</button>
-            <button onClick={handleNextTurn}>Next Turn</button>
+            <button onClick={handleNextTurn}>End Turn</button>
           </div>
         </div>
         <div className="game-board">

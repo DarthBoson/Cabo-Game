@@ -40,6 +40,7 @@ const GameResults = () => {
   }
 
   return (
+  <div className="game-results-container">
     <div className="game-results">
       <h2>Game Results</h2>
       <div className="results-grid">
@@ -59,6 +60,7 @@ const GameResults = () => {
         ))}
       </div>
     </div>
+	</div>
   );
 };
 

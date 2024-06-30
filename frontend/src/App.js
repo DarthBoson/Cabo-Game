@@ -8,7 +8,7 @@ import GameResults from './components/GameResults';
 
 require('dotenv').config()
 
-const socket = io('https://cabo-game-backend.onrender.com');
+const socket = io('https://2ffb-49-43-160-11.ngrok-free.app');
 
 function App() {
   const [username, setUsername] = useState('');

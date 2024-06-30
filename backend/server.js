@@ -68,7 +68,7 @@ function startNewGame() {
 // Enable CORS for all routes
 // Enable CORS for all routes
 app.use(cors({
-  origin: "https://your-frontend-service.onrender.com" // Allow only this origin to access the server
+  origin: "https://cabo-game-frontend.onrender.com" // Allow only this origin to access the server
 }));
 
 

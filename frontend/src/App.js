@@ -6,7 +6,9 @@ import WaitingLobby from './components/WaitingLobby';
 import GameLobby from './components/GameLobby';
 import GameResults from './components/GameResults';
 
-const socket = io(process.env.REACT_APP_API_URL);
+require('dotenv').config()
+
+const socket = io('https://cabo-game-backend.onrender.com');
 
 function App() {
   const [username, setUsername] = useState('');

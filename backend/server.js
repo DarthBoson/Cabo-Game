@@ -9,9 +9,17 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: "https://cabo-game-frontend.onrender.com", // Allow only this origin to access the server
+    origin: "https://playcabo.netlify.app/", // Allow only this origin to access the server
     methods: ["GET", "POST"]
   }
+});
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'build')));
+
+// Handles any requests that don't match the ones above
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 let players = []; // Initialize players array
@@ -68,7 +76,7 @@ function startNewGame() {
 // Enable CORS for all routes
 // Enable CORS for all routes
 app.use(cors({
-  origin: "https://cabo-game-frontend.onrender.com" // Allow only this origin to access the server
+  origin: "https://playcabo.netlify.app/" // Allow only this origin to access the server
 }));
 
 

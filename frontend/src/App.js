@@ -8,7 +8,7 @@ import GameResults from './components/GameResults';
 
 require('dotenv').config()
 
-const socket = io('https://cabo-game-backend.onrender.com');
+const socket = io('http://localhost:4000');
 
 function App() {
   const [username, setUsername] = useState('');

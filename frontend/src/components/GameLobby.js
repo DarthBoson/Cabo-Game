@@ -19,7 +19,8 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
   const [caboCalled, setCaboCalled] = useState(false);
   const [extraTurnsLeft, setExtraTurnsLeft] = useState(0);
   const [swapFromPile2, setSwapFromPile2] = useState(false);
-
+  const [isButtonDisabled, setButtonDisabled] = useState(false);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,7 +36,11 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
       setTopCard(topCard);
       setAllowCardSelection(true);
     });
-
+    
+	socket.on('allowCardSelection2', () => {
+      setAllowCardSelection(true);
+    });
+	
     socket.on('allowCardSwap', ({ topCard }) => {
       setTopCard(topCard);
       setAllowCardSwap(true);
@@ -44,6 +49,10 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
 	socket.on('allowCardSwapFromPile2', ({ topCard }) => {
       setTopCard(topCard);
       setSwapFromPile2(true);
+	});
+	
+	socket.on('disableInitViewButton', () => {
+      setButtonDisabled(true);
 	});
 	
     socket.on('gameEnded', (players) => {
@@ -55,6 +64,7 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
       socket.off('allowCardSwap');
       socket.off('allowCardSwapFromPile2');
       socket.off('gameEnded');
+	  socket.off('allowCardSelection2');
     };
   }, [navigate]);
 
@@ -122,7 +132,11 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
       socket.emit('swapCardFromPile2', playerIndex, cardIndex);
     }
   };
-
+  
+  const handleInitialCardView = () => {
+    socket.emit('viewInitialCard');
+  };
+  
   const callCabo = () => {
     socket.emit('callCabo');
     setShowCaboPopup(true);
@@ -201,7 +215,8 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
             </div>
           </div>
           <div className="sidebar-buttons">
-            <button onClick={callCabo}>Call Cabo</button>
+            <button onClick={handleInitialCardView} disabled={isButtonDisabled}>View Card</button>
+			<button onClick={callCabo}>Call Cabo</button>
             <button onClick={handleNextTurn}>End Turn</button>
           </div>
         </div>

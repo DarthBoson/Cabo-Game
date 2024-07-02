@@ -9,17 +9,9 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: "https://playcabo.netlify.app/", // Allow only this origin to access the server
+    origin: "http://localhost:3000", // Allow only this origin to access the server
     methods: ["GET", "POST"]
   }
-});
-
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, 'build')));
-
-// Handles any requests that don't match the ones above
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 let players = []; // Initialize players array
@@ -27,7 +19,8 @@ let card1Pile = []; // Initialize card1Pile
 let card2Pile = []; // Initialize card2Pile
 let currentTurn = 0; // Initialize current turn
 let topCard = null; // Initialize topCard
-let count = -1;
+let countCabo = -1; // count for cabo call
+let countInitCardView = 0; // counts number of cards which can be viewed initially.
 
 // Helper function to shuffle an array
 function shuffleDeck(array) {
@@ -76,7 +69,7 @@ function startNewGame() {
 // Enable CORS for all routes
 // Enable CORS for all routes
 app.use(cors({
-  origin: "https://playcabo.netlify.app/" // Allow only this origin to access the server
+  origin: "http://localhost:3000" // Allow only this origin to access the server
 }));
 
 
@@ -111,7 +104,20 @@ io.on('connection', (socket) => {
       }
     }
   });
-
+  
+  // Handle initial card view
+  socket.on('viewInitialCard', () => {
+	countInitCardView = countInitCardView + 1;
+	
+	maxCardViews = 2; // Sets the number of cards allowed to be viewed
+	
+	if(countInitCardView >= maxCardViews){
+		socket.emit('disableInitViewButton');
+	}
+    
+	socket.emit('allowCardSelection2');
+  });
+  
   // Handle replaceCard event
   socket.on('replaceCard', (playerIndex, cardIndex) => {
     const player = players[playerIndex];
@@ -155,11 +161,11 @@ io.on('connection', (socket) => {
 	  console.log("At the very fucking least i am here");
 	  console.log(players);
 	  
-	  if (count > 0){
+	  if (countCabo > 0){
 		  io.emit('gameEnded', { players }); // Send player data when the game ends
 	  }
 	  
-	  count = count + 100;
+	  countCabo = countCabo + 100;
 	  
 	  let turnsRemaining = players.length - 1;
 	  let turnIndex = (callingPlayerIndex + 1) % players.length;

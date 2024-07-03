@@ -5,22 +5,41 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: url('assets/login-backdrop-desktop.png') no-repeat center center/cover; /* Add your custom background image URL */
+  background: url('assets/login-backdrop-desktop.jpeg') no-repeat center center/cover; /* Add your custom background image URL */
   font-family: 'Arial', sans-serif;
 }
 
 .login-box {
+  display: flex;
+  flex-direction: column;
+  row-gap: 7px; 
+  justify-content: center;
+  align-items: center;
+  height: 500px;
+  width: 600px;
   background: rgba(50, 50, 50, 0.8);
-  padding: 30px;
+  padding: 40px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
 }
 
+.login-box h1 {
+  margin-bottom: 20px;
+  font-size: 48px;
+  color: #fff;
+}
+
 .login-box h2 {
   margin-bottom: 20px;
-  font-size: 24px;
-  color: #333;
+  font-size: 30px;
+  color: #fff;
+}
+
+.login-box p {
+  margin-bottom: 20px;
+  font-size: 16px;
+  color: #fff;
 }
 
 .login-box input {
@@ -33,20 +52,55 @@
 }
 
 .login-box button {
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  background-color: #4CAF50;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  color: white;
+  align-items: center;
+  max-width: 170px;
+  background-color: initial;
+  background-image: linear-gradient(#464d55, #25292e);
+  border-radius: 8px;
+  border-width: 0;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, .1),0 3px 6px rgba(0, 0, 0, .05);
+  box-sizing: border-box;
+  color: #fff;
   cursor: pointer;
-  transition: background-color 0.3s;
+  display: inline-flex;
+  flex-direction: column;
+  font-family: expo-brand-demi,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-size: 18px;
+  height: 52px;
+  justify-content: center;
+  line-height: 1;
+  margin: 0;
+  outline: none;
+  overflow: hidden;
+  padding: 0 32px;
+  text-align: center;
+  text-decoration: none;
+  transform: translate3d(0, 0, 0);
+  transition: all 150ms;
+  vertical-align: baseline;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 
 .login-box button:hover {
-  background-color: #45a049;
+  box-shadow: rgba(0, 1, 0, .2) 0 2px 8px;
+  opacity: .85;
+}
+
+.login-box button:active {
+  outline: 0;
+}
+
+.login-box button:focus {
+  box-shadow: rgba(0, 0, 0, .5) 0 0 0 3px;
+}
+
+@media (max-width: 420px) {
+  .login-box button {
+    height: 48px;
+  }
 }
 
 /* Responsive Design */

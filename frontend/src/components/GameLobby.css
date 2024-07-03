@@ -4,11 +4,11 @@
   text-align: center;
   margin: 0;
   padding: 0;
-  width: 100vw; /* Set the width to cover the entire viewport */
-  height: 100vh; /* Set the height to cover the entire viewport */
-  background-image: url('assets/poker-table.jpg'); /* Replace 'path/to/your/image.jpg' with the path to your custom image */
-  background-size: cover; /* Cover the entire element with the background image */
-  background-position: center; /* Center the background image */
+  width: 100vw;
+  height: 100vh;
+  background-image: url('assets/poker-table.jpg');
+  background-size: cover;
+  background-position: center;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -23,16 +23,20 @@
 .sidebar {
   display: flex;
   flex-direction: column;
+  row-gap: 20px; 
   justify-content: center;
   align-items: center;
   width: 200px;
-  padding: 20px;
-  background-color: rgba(255, 255, 255, 0.8);
-  border-right: 1px solid #ccc;
+  padding: 40px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-right: 0px solid #ccc;
 }
 
 .sidebar-cards {
+  display: flex;
+  flex-direction: column;
   margin-bottom: 20px;
+  row-gap: 20px;
 }
 
 .sidebar-card {
@@ -48,33 +52,82 @@
   cursor: pointer;
 }
 
+.sidebar-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+}
+
 .sidebar-card:hover {
   background-color: #f0f0f0;
 }
 
+.sidebar-buttons {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+  row-gap: 20px;
+}
+
 .sidebar-buttons button {
-  display: block;
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 10px;
-  background-color: #4CAF50;
-  border: none;
-  border-radius: 5px;
-  color: white;
+  align-items: center;
+  max-width: 170px;
+  background-color: initial;
+  background-image: linear-gradient(#464d55, #25292e);
+  border-radius: 8px;
+  border-width: 0;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, .1),0 3px 6px rgba(0, 0, 0, .05);
+  box-sizing: border-box;
+  color: #fff;
   cursor: pointer;
-  transition: background-color 0.3s;
+  display: inline-flex;
+  flex-direction: column;
+  font-family: expo-brand-demi,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-size: 18px;
+  height: 52px;
+  justify-content: center;
+  line-height: 1;
+  margin: 0;
+  outline: none;
+  overflow: hidden;
+  padding: 0 32px;
+  text-align: center;
+  text-decoration: none;
+  transform: translate3d(0, 0, 0);
+  transition: all 150ms;
+  vertical-align: baseline;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 
 .sidebar-buttons button:hover {
-  background-color: #45a049;
+  box-shadow: rgba(0, 1, 0, .2) 0 2px 8px;
+  opacity: .85;
+}
+
+.sidebar-buttons button:active {
+  outline: 0;
+}
+
+.sidebar-buttons button:focus {
+  box-shadow: rgba(0, 0, 0, .5) 0 0 0 3px;
+}
+
+@media (max-width: 420px) {
+  .sidebar-buttons button {
+    height: 48px;
+  }
 }
 
 .game-board {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
   flex-grow: 1;
+  padding: 20px;
 }
 
 .row {
@@ -108,7 +161,7 @@
 }
 
 .player-card.current-turn {
-  border: 10px solid green; /* Green border for the current player's turn */
+  border: 5px solid green;
 }
 
 .player-card img {
@@ -125,7 +178,7 @@
 
 .player-hand {
   display: grid;
-  grid-template-columns: repeat(2, 50px);
+  grid-template-columns: repeat(2, 100px);
   grid-gap: 10px;
 }
 
@@ -135,9 +188,9 @@
   justify-content: center;
   width: 25px;
   height: 45px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #fff;
+  background-image: url('assets/cardback-black.png');
+  background-size: cover;
+  background-position: center;
   cursor: pointer;
   transition: background-color 0.3s;
 }
@@ -182,4 +235,8 @@
 
 .popup-content button:hover {
   background-color: #45a049;
+}
+
+.card.selectable {
+  border: 2px dashed #4CAF50;
 }

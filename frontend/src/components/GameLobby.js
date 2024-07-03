@@ -1,16 +1,72 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import io from 'socket.io-client';
 import './GameLobby.css';
-import { io } from 'socket.io-client';
 
 const socket = io('http://localhost:4000');
 
 function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
   const [showPopup, setShowPopup] = useState(false);
   const [topCard, setTopCard] = useState(null);
+  const [allowCardSelection, setAllowCardSelection] = useState(false);
+  const [allowCardSwap, setAllowCardSwap] = useState(false);
+  const [allowCardReplacement, setAllowCardReplacement] = useState(false);
+  const [selectedCards, setSelectedCards] = useState([]);
+  const [showCardValuePopup, setShowCardValuePopup] = useState(false);
+  const [selectedCardValue, setSelectedCardValue] = useState(null);
+  const [currentPlayer, setCurrentPlayer] = useState(null);
+  const [showCaboPopup, setShowCaboPopup] = useState(false);
+  const [caboCalled, setCaboCalled] = useState(false);
+  const [extraTurnsLeft, setExtraTurnsLeft] = useState(0);
+  const [swapFromPile2, setSwapFromPile2] = useState(false);
+  const [isButtonDisabled, setButtonDisabled] = useState(false);
+  
+  const navigate = useNavigate();
 
   useEffect(() => {
     setTopCard(card1Pile[card1Pile.length - 1]);
   }, [card1Pile]);
+
+  useEffect(() => {
+    setCurrentPlayer(players[currentTurn]);
+  }, [currentTurn, players]);
+
+  useEffect(() => {
+    socket.on('allowCardSelection', ({ topCard }) => {
+      setTopCard(topCard);
+      setAllowCardSelection(true);
+    });
+    
+	socket.on('allowCardSelection2', () => {
+      setAllowCardSelection(true);
+    });
+	
+    socket.on('allowCardSwap', ({ topCard }) => {
+      setTopCard(topCard);
+      setAllowCardSwap(true);
+    });
+	
+	socket.on('allowCardSwapFromPile2', ({ topCard }) => {
+      setTopCard(topCard);
+      setSwapFromPile2(true);
+	});
+	
+	socket.on('disableInitViewButton', () => {
+      setButtonDisabled(true);
+	});
+	
+    socket.on('gameEnded', (players) => {
+      navigate('/results', { state: { players } });
+    });
+
+    return () => {
+      socket.off('allowCardSelection');
+      socket.off('allowCardSwap');
+      socket.off('allowCardSwapFromPile2');
+      socket.off('gameEnded');
+	  socket.off('allowCardSelection2');
+    };
+  }, [navigate]);
 
   const handleCardClick = () => {
     if (card1Pile.length > 0) {
@@ -20,25 +76,104 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
   };
 
   const handleUsePower = () => {
-    socket.emit('usePower');
+    const cardValue = topCard.slice(0, -1);
+    if (['7', '8', '9', '10'].includes(cardValue)) {
+      socket.emit('usePower');
+    } else if (['J', 'Q'].includes(cardValue)) {
+      socket.emit('usePower');
+    } else {
+      socket.emit('usePower');
+    }
     setShowPopup(false);
   };
 
   const handleReplaceCard = () => {
+    setAllowCardReplacement(true);
     setShowPopup(false);
   };
 
+  const handleCardSelection = (cardValue, cardIndex, playerIndex) => {
+    if (allowCardSelection) {
+      setSelectedCardValue(cardValue);
+      setShowCardValuePopup(true);
+      setAllowCardSelection(false);
+      socket.emit('selectCard');
+    } else if (allowCardSwap) {
+      const selectedCard = { playerIndex, cardIndex };
+      const newSelectedCards = [...selectedCards, selectedCard];
+      setSelectedCards(newSelectedCards);
+
+      if (newSelectedCards.length === 2) {
+        socket.emit('swapCards', newSelectedCards[0], newSelectedCards[1]);
+        setSelectedCards([]);
+        setAllowCardSwap(false);
+      }
+    } else if (allowCardReplacement && playerIndex === currentTurn) {
+      socket.emit('replaceCard', playerIndex, cardIndex);
+      setAllowCardReplacement(false);
+    } else if (swapFromPile2 && playerIndex === currentTurn) {
+      socket.emit('replaceCardFromPile2', currentTurn, cardIndex);
+      setSwapFromPile2(false);
+    }
+  };
+
+  const closeCardValuePopup = () => {
+    setShowCardValuePopup(false);
+  };
+
+  const handleSwapFromPile2 = () => {
+    if (card2Pile.length > 0) {
+      socket.emit('useCardFromPile2');
+	}
+  };
+
+  const swapCardFromPile2 = (playerIndex, cardIndex) => {
+    if (playerIndex !== null && card2Pile.length > 0) {
+      socket.emit('swapCardFromPile2', playerIndex, cardIndex);
+    }
+  };
+  
+  const handleInitialCardView = () => {
+    socket.emit('viewInitialCard');
+  };
+  
+  const callCabo = () => {
+    socket.emit('callCabo');
+    setShowCaboPopup(true);
+    setCaboCalled(true);
+    setExtraTurnsLeft(players.length - 1);
+    setTimeout(() => {
+      setShowCaboPopup(false);
+    }, 5000);
+  };
+
+  const handleNextTurn = () => {
+    if (caboCalled) {
+      if (extraTurnsLeft > 0) {
+        setExtraTurnsLeft(extraTurnsLeft - 1);
+        onNextTurn();
+      } else {
+        socket.emit('endGame');
+      }
+    } else {
+      onNextTurn();
+    }
+  };
+
   const renderPlayerSection = (player, index, position) => {
-    const cardIndexStart = index * 4;
-    const playerCards = card1Pile.slice(cardIndexStart, cardIndexStart + 4);
     const isCurrentTurn = currentTurn === index;
 
     return (
       <div key={index} className={`player-section ${position}`}>
         {position === 'bottom' && (
           <div className="player-hand">
-            {playerCards.map((card) => (
-              <div key={card} className="card">
+            {player.cards.map((card, cardIndex) => (
+              <div
+                key={cardIndex}
+                className={`card ${allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn) ? 'selectable' : ''}`}
+                onClick={() => (allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn)) && handleCardSelection(card, cardIndex, index)}
+                style={{ cursor: allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn) ? 'pointer' : 'default' }}
+              >
                 {card}
               </div>
             ))}
@@ -50,9 +185,14 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
         </div>
         {position === 'top' && (
           <div className="player-hand">
-            {playerCards.map((card) => (
-              <div key={card} className="card">
-                {card}
+            {player.cards.map((card, cardIndex) => (
+              <div
+                key={cardIndex}
+                className={`card ${allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn) ? 'selectable' : ''}`}
+                onClick={() => (allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn)) && handleCardSelection(card, cardIndex, index)}
+                style={{ cursor: allowCardSelection || allowCardSwap || (allowCardReplacement && index === currentTurn) || (swapFromPile2 && index === currentTurn) ? 'pointer' : 'default' }}
+              >
+                
               </div>
             ))}
           </div>
@@ -63,22 +203,21 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
 
   return (
     <div className="game-lobby">
-      <h2>Game Lobby</h2>
+      
       <div className="game-content">
         <div className="sidebar">
           <div className="sidebar-cards">
             <div className="sidebar-card" onClick={handleCardClick}>
               Remaining: {card1Pile.length} cards
             </div>
-            <div className="sidebar-card">
+            <div className="sidebar-card" onClick={handleSwapFromPile2}>
               {card2Pile.length > 0 ? `Card 2: ${card2Pile[card2Pile.length - 1]}` : 'Card 2'}
             </div>
           </div>
           <div className="sidebar-buttons">
-            <button>Button 1</button>
-            <button>Button 2</button>
-            <button>Button 3</button>
-            <button onClick={onNextTurn}>Button 4</button>
+            <button onClick={handleInitialCardView} disabled={isButtonDisabled}>View Card</button>
+			<button onClick={callCabo}>Call Cabo</button>
+            <button onClick={handleNextTurn}>End Turn</button>
           </div>
         </div>
         <div className="game-board">
@@ -96,6 +235,21 @@ function GameLobby({ players, card1Pile, card2Pile, currentTurn, onNextTurn }) {
             <h3>Top Card: {topCard}</h3>
             <button onClick={handleUsePower}>Use Power</button>
             <button onClick={handleReplaceCard}>Replace Card</button>
+          </div>
+        </div>
+      )}
+      {showCardValuePopup && (
+        <div className="popup">
+          <div className="popup-content">
+            <h3>Selected Card Value: {selectedCardValue}</h3>
+            <button onClick={closeCardValuePopup}>Close</button>
+          </div>
+        </div>
+      )}
+      {showCaboPopup && (
+        <div className="popup">
+          <div className="popup-content">
+            <h3>The current player has called Cabo!</h3>
           </div>
         </div>
       )}

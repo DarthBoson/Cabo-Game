@@ -1,0 +1,46 @@
+
+.game-results {
+  text-align: center;
+  background: rgba(50, 50, 50, 0.8);
+}
+
+.game-results h2 {
+  margin-bottom: 20px;
+  font-size: 48px;	
+  color: #fff;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.player-result {
+  padding: 20px;	
+  text-align: center;
+  color: #fff;
+}
+
+.player-result img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  color: #fff;
+}
+
+.player-cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  color: #fff;
+}
+
+.player-cards .card {
+  margin: 5px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color : #fff;
+  color: #fff;
+}
